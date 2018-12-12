@@ -46,3 +46,30 @@
 ; with an interpreter that uses normal-order evaluation, we will get 0
 ; with an applicative-order, we will get infinite loop. (because evalutations of arguments come first)
 
+;;;1.7
+
+;; Declarative knowledge ("what is")
+;; Imperative knowledge ("how to")
+
+(define (sqrt-iter guess x)
+  (if (good-enough? guess x)
+      guess
+      (sqrt-iter (improve guess x)
+                 x)))
+(define (improve guess x)
+  (average guess (/ x guess)))
+(define (average x y)
+  (/ (+ x y) 2))
+(define (good-enough? guess x)
+  (< (abs (- (square guess) x)) 0.001))
+(define (sqrt x)
+  (sqrt-iter 1.0 x))
+
+;;Exercise 1.6
+; With applicative order evaluation, both then-clause and else-clause are evaluated
+; So the shown definition will get into a infinite loop.
+
+;;Exercise 1.7
+; The tolerance of 0.001 is significantly large when computing the square root of a small value.
+; For very large values, the machine precision is unable to represent small differences between large numbers.
+

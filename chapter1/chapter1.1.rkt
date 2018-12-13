@@ -73,3 +73,17 @@
 ; The tolerance of 0.001 is significantly large when computing the square root of a small value.
 ; For very large values, the machine precision is unable to represent small differences between large numbers.
 
+;;Exercise 1.8
+(define (cbrt x)
+  (cbrt-iter 1.0 x))
+(define (cbrt-iter guess x)
+  (if (good-enough-cube? guess x)
+      guess
+      (cbrt-iter (improve-cube guess x)
+                 x)))
+(define (good-enough-cube? guess x)
+  (< (abs (- (* guess guess guess) x)) 0.01))
+(define (improve-cube guess x)
+  (/ (+ (/ x (square guess)) (* 2 guess))
+     3))
+

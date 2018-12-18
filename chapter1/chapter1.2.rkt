@@ -27,3 +27,14 @@
         ((= y 1) 2)
         (else (A (- x 1)
                  (A x (- y 1))))))
+
+;; 1.2.2 Tree recursion
+;; the number of steps required by a tree-recursive process will be proportional to the NUMBER OF NODES in the tree,
+;; while the space required by will be proportional to the MAXIMUM DEPTH of the tree.
+
+(define (fib n)
+  (define (iter a b current)
+    (if (= current n)
+        b
+        (iter (+ a b) a (+ current 1))))
+  (iter 1 0 0))

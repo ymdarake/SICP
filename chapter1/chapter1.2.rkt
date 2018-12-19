@@ -38,3 +38,31 @@
         b
         (iter (+ a b) a (+ current 1))))
   (iter 1 0 0))
+
+;Excerscise 1.11
+(define (f n)
+  (if (< n 3)
+      n
+      (+
+       (f (- n 1))
+       (* 2 (f (- n 2)))
+       (* 3 (f (- n 3))))))
+
+; counting down to 3.
+(define (f-iter n)
+  (define (iter fn-1 fn-2 fn-3 counter)
+    (if (< counter 3)
+        fn-1
+        (iter
+         (+ fn-1 (* 2 fn-2) (* 3 fn-3))
+         fn-1
+         fn-2
+         (- counter 1))))
+  (if (< n 3)
+      n
+      (iter 2 1 0 n)))
+
+
+
+
+         

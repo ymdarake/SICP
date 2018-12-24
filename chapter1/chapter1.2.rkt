@@ -70,6 +70,16 @@
         (else (+ (pascals-triangle (- row 1) (- col 1))
                  (pascals-triangle (- row 1) col)))))
 
+(define (even? n)
+  (= (remainder n 2) 0))
 
+;Excercise 1.16
+(define (expt b n)
+  (define (iter base e a)
+    (if (= e 0)
+        a
+        (if (even? e)
+            (iter (* base base) (/ e 2) a)
+            (iter base (- e 1) (* a base)))))
+  (iter b n 1))
 
-         

@@ -39,7 +39,7 @@
         (iter (+ a b) a (+ current 1))))
   (iter 1 0 0))
 
-;Excerscise 1.11
+;Excercise 1.11
 (define (f n)
   (if (< n 3)
       n
@@ -62,6 +62,13 @@
       n
       (iter 2 1 0 n)))
 
+
+;Excercise 1.12
+(define (pascals-triangle row col)
+  (cond ((= col 1) 1)
+        ((= row col) 1)
+        (else (+ (pascals-triangle (- row 1) (- col 1))
+                 (pascals-triangle (- row 1) col)))))
 
 
 

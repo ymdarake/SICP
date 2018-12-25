@@ -83,18 +83,3 @@
             (iter base (- e 1) (* a base)))))
   (iter b n 1))
 
-;Excercise 1.17
-(define (multi a b)
-  (define (double x)
-    (* 2 x))
-  (define (halve x)
-    (/ x 2))
-  (define (iter base count acc)
-    (if (= 0 count)
-        acc
-        (if (even? count)
-            (iter (double base) (halve count) acc); only to transform to reduce steps.
-            (iter base (- count 1) (+ acc base))))); calculate.
-  (iter a b 0))
-
-

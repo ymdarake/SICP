@@ -83,7 +83,7 @@
             (iter base (- e 1) (* a base)))))
   (iter b n 1))
 
-;Excercise 1.17
+;Excercise 1.17, 1.18
 (define (multi a b)
   (define (double x)
     (* 2 x))
@@ -97,4 +97,11 @@
             (iter base (- count 1) (+ acc base))))); calculate.
   (iter a b 0))
 
+;;1.2.5 GCD
+(define (gcd a b)
+  (if (= b 0)
+      a
+      (gcd b (remainder a b))))
+;Excercise 1.20
+; remainder is called in the if form to check if the procedure have to stop.
 

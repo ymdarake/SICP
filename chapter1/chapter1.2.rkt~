@@ -105,17 +105,3 @@
 ;Excercise 1.20
 ; remainder is called in the if form to check if the procedure have to stop.
 
-
-;Excercise 1.21
-(define (divides? a b)
-  (= 0 (remainder b a)))
-(define (smallest-divisor n)
-  (define (iter n m)
-    (cond ((> m n) n)
-          ((divides? m n) m)
-          (else (iter n (+ m 1)))))
-  (iter n 2))
-
-
-
-

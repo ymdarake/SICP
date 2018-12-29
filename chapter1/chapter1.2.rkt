@@ -110,10 +110,14 @@
 (define (divides? a b)
   (= 0 (remainder b a)))
 (define (smallest-divisor n)
-  (define (iter n m)
-    (cond ((> m n) n)
-          ((divides? m n) m)
-          (else (iter n (+ m 1)))))
+  (define (iter n test-divisor)
+    (cond ((> (* test-divisor test-divisor) n) n)
+          ((divides? test-divisor n) test-divisor)
+          (else (iter n (next test-divisor)))))
+  (define (next divisor)
+    (if (= divisor 2)
+        3
+        (+ divisor 2)))
   (iter n 2))
 
 (define (prime? n)
@@ -142,3 +146,19 @@
             (iter (+ current 2) (+ count (if (prime? current) 1 0))))))
   (iter start 0))
 
+;Excercise 1.23
+;The  observed ration of the speed of the two algorithms is not 2, but roughtly 1.5.
+;This is mainly due to the NEXT procedure's IF test. The input did halve indeed,
+;but we need to do an extra IF test.
+
+;;;;;; An+1 = 2An + 1
+(define (an x)
+  (if (= 1 x)
+      1
+      (+ 1 (* 2 (an (- x 1))))))
+(define (bn x)
+  (define (iter current counter)
+    (if (= counter x)
+        current
+        (iter (+ 1 (* 2 current)) (+ 1 counter))))
+  (iter 1 1))

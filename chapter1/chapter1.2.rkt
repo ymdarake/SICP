@@ -116,6 +116,29 @@
           (else (iter n (+ m 1)))))
   (iter n 2))
 
+(define (prime? n)
+  (= n (smallest-divisor n)))
 
+;Excercise 1.22
+(define (timed-prime-test n)
+  (newline)
+  (display n)
+  (start-prime-test n (current-inexact-milliseconds)))
+(define (start-prime-test n start-time)
+  (if (prime? n)
+      (report-prime (- (current-inexact-milliseconds) start-time))
+      (display "")))
+(define (report-prime elapsed-time)
+  (display " *** ")
+  (display elapsed-time))
 
+(define (search-for-primes start end max-count)
+  (define (iter current count)
+    (timed-prime-test current)
+    (if (= count max-count)
+        (display "reached to max-count")
+        (if (> current end)
+            (display " DONE. ")
+            (iter (+ current 2) (+ count (if (prime? current) 1 0))))))
+  (iter start 0))
 

@@ -35,3 +35,23 @@
         result
         (iter (next current) (+ result (f current)))))
   (iter start 0))
+
+;Exercise1.31
+(define (product-recur f current next end)
+  (if (> current end)
+      1
+      (* (f current) (product-recur f (next current) next end))))
+
+(define (product f current next end)
+  (define (iter current acc)
+    (if (> current end)
+        acc
+        (iter (next current) (* acc (f current)))))
+  (iter current 1))
+
+(define (pi-wallis-product accuracy)
+  (define (pi-term n) 
+    (if (even? n)
+        (/ (+ n 2) (+ n 1)) 
+        (/ (+ n 1) (+ n 2))))
+  (* 4 (product pi-term 1 inc accuracy)))

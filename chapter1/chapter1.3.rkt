@@ -55,3 +55,24 @@
         (/ (+ n 2) (+ n 1)) 
         (/ (+ n 1) (+ n 2))))
   (* 4 (product pi-term 1 inc accuracy)))
+
+;Exercise1.32
+;left fold
+(define (accumulate combiner null-value f start next end)
+  (define (iter current acc)
+    (if (> current end)
+        acc
+        (iter (next current) (combiner acc (f current)))))
+  (iter start null-value))
+
+;right fold
+(define (accumulate-recur combiner null-value f start next end)
+  (if (> start end)
+      null-value
+      (combiner (f start)
+                (accumulate-recur combiner null-value f (next start) next end))))
+
+(define (sum-accumulate f start next end)
+  (accumulate + 0 f start next end))
+(define (product-accumulate f start next end)
+  (accumulate * 1 f start next end))

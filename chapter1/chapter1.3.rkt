@@ -10,9 +10,26 @@
          (sum f (next start) next end))))
 
 (define (inc n) (+ n 1))
+(define (square n) (* n n))
 (define (cube x) (* x x x))
 (define (sum-cubes a b)
   (sum cube a inc b))
+(define (smallest-div n) 
+  (define (divides? a b) 
+    (= 0 (remainder b a))) 
+  (define (find-div n test) 
+    (cond ((> (square test) n) n) ((divides? test n) test) 
+          (else (find-div n (+ test 1))))) 
+  (find-div n 2)) 
+(define (prime? n) 
+  (if (= n 1) false (= n (smallest-div n))))
+(define (gcd m n)
+  (cond ((< m n) (gcd n m))
+        ((= n 0) m)
+        (else (gcd n (remainder m n)))))
+(define (relative-prime? m n)
+  (= (gcd m n) 1))
+
 
 (define (identity x) x)
 (define (sum-integers a b)
@@ -76,3 +93,21 @@
   (accumulate + 0 f start next end))
 (define (product-accumulate f start next end)
   (accumulate * 1 f start next end))
+
+;Exercise1.33
+(define (filtered-accumulate combiner null-value f start next end predicate)
+  (define (iter current acc)
+    (if (> current end)
+        acc
+        (iter (next current) (combiner acc
+                                       (if (predicate current)
+                                           (f current)
+                                           null-value)))))
+  (iter start null-value))
+  
+(define (sum-of-prime-squares start end)
+  (filtered-accumulate + 0 square start inc end prime?))
+
+(define (product-of-relative-primes n)
+  (define (filter x) (relative-prime? x n))
+  (filtered-accumulate * 1 identity 1 inc n filter))

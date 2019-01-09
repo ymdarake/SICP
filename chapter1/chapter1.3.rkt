@@ -111,3 +111,33 @@
 (define (product-of-relative-primes n)
   (define (filter x) (relative-prime? x n))
   (filtered-accumulate * 1 identity 1 inc n filter))
+
+;;; lambda, and let
+
+;;lambda
+(define (plus4 x) (+ x 4))
+;is equivalent to
+;(define plus4 (lambda (x) (+ x 4)))
+
+;;A let expression is simply syntactic sugar for the underlying lambda expression
+(define (f x y)
+  ((lambda (a b)
+     (+ (* x (square a))
+        (* y b)
+        (* a b)))
+   (+ 1 (* x y))
+   (- 1 y)))
+;is equivalent to
+(define (f-let-sample x y)
+  (let ((a (+ 1 (* x y)))
+        (b (- 1 y)))
+    (+ (* x (square a))
+       (* y b)
+       (* a b))))
+
+;;Exercise1.34
+(define (f-1-34 g) (g 2))
+;(f f)
+;(f 2)
+;(2 2)
+;error! 2 is not a procedure.

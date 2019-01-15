@@ -11,6 +11,7 @@
 
 (define (inc n) (+ n 1))
 (define (square n) (* n n))
+(define (average x y) (/ (+ x y) 2))
 (define (cube x) (* x x x))
 (define (sum-cubes a b)
   (sum cube a inc b))
@@ -141,3 +142,23 @@
 ;(f 2)
 ;(2 2)
 ;error! 2 is not a procedure.
+
+;;; 1.3.3 Procedures as General Methods
+; half-interval method: find the value of x where f(x) = 0. f(a) < 0 < f(b).
+(define (search f neg-point pos-point)
+  (let ((mid-point (average neg-point pos-point)))
+    (define (close-enough? x y)
+      (< (abs (- x y)) 0.001))
+    (if (close-enough? neg-point pos-point)
+        mid-point
+        (let ((test-value (f mid-point)))
+          (cond ((positive? test-value) (search f neg-point mid-point))
+                ((negative? test-value) (search f mid-point pos-point))
+                (else mid-point))))))
+
+(define (half-interval-method f a b)
+  (let ((a-value (f a))
+        (b-value (f b)))
+    (cond ((and (negative? a-value) (positive? b-value)) (search f a b))
+          ((and (negative? b-value) (positive? a-value)) (search f b a))
+          (else (error "Values are not of opposite sign" a b)))))

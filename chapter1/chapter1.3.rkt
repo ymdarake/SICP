@@ -162,3 +162,50 @@
     (cond ((and (negative? a-value) (positive? b-value)) (search f a b))
           ((and (negative? b-value) (positive? a-value)) (search f b a))
           (else (error "Values are not of opposite sign" a b)))))
+
+(define tolerance 0.00001)
+(define (fixed-point f first-guess)
+  (define (close-enough? x y)
+    (< (abs (- x y)) tolerance))
+  (define (try guess)
+    (let ((next (f guess)))
+      (display next)
+      (newline)
+      (if (close-enough? guess next)
+          next
+          (try next))))
+  (try first-guess))
+
+; use 'average damping' to aid the convergence of fixed-point searches.
+(define (sqrt x)
+  (fixed-point (lambda (y) (average y (/ x y)))
+               1.0))
+
+;;Exercise 1.35
+; x = 1 + 1/x  <=> x^2 - x - 1 = 0, x = (1 +- 5^1/2)
+(define (calc-golden-ratio)
+  (fixed-point (lambda (x) (+ 1 (/ 1 x))) 1.0))
+; using 'average damping'
+(define (calc-golden-ratio-average-damping)
+  (fixed-point (lambda (x) (average x (+ 1 (/ 1 x)))) 1.0))
+
+;;Exercise 1.36
+(define (log-with-average-damping); 9 steps to converge
+  (fixed-point (lambda (x) (average x (/ (log 1000) (log x)))) 2.0))
+(define (log-without-average-damping); 34 steps.
+  (fixed-point (lambda (x) (/ (log 1000) (log x))) 2.0))
+
+;;Exercise 1.37
+(define (cont-frac n d k)
+  (define (recur current)
+    (if (= current k)
+        (/ (n current) (d current))
+        (/ (+ (d current) (recur (+ 1 current))))))
+  (recur 1))
+(define (cont-frac-iter n d k)
+  (define (iter acc current)
+    (if (= current 1)
+        acc
+        (iter (/ (n (- current 1)) (+ (d (- current 1)) acc)) (- current 1))))
+  (iter (n k) k))
+     

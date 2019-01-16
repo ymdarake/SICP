@@ -209,3 +209,16 @@
         (iter (/ (n (- current 1)) (+ (d (- current 1)) acc)) (- current 1))))
   (iter (n k) k))
      
+;;Exercise 1.38
+(define (e-2 to-term-k)
+  (cont-frac (lambda (i) 1.0)
+             (lambda (i) (cond ((= 2 (remainder i 3)) (* 2 (/ (+ i 1) 3))); Di = 2N where N stands for 'Nth group' (divide three by three)
+                               (else 1)))
+             to-term-k))
+;;Exercise 1.39
+(define (tan-cf x k)
+  (let ((minus-square-of-x (- (* x x))))
+    (cont-frac (lambda (i) (if (= i 1) x minus-square-of-x))
+               (lambda (i) (- (* 2 i) 1))
+               k)))
+

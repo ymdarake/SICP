@@ -222,3 +222,61 @@
                (lambda (i) (- (* 2 i) 1))
                k)))
 
+;;; 1.3.4 Procedures as Returned Values
+(define (average-damp f)
+  (lambda (x) (average x (f x))))
+
+; derivative
+(define (deriv g)
+  (lambda (x)
+    (/ (- (g (+ x dx)) (g x))
+       dx)))
+(define dx 0.00001)
+
+(define (newton-transform g)
+  (lambda (x)
+    (- x (/ (g x) ((deriv g) x)))))
+
+(define (newtons-method g guess)
+  (fixed-point (newton-transform g) guess))
+
+(define (sqrt-newton x)
+  (newtons-method (lambda (y) (- (square y) x))
+                  1.0))
+
+;;;;; As programmers, we should be alert to opportunities
+;;;;; to identify the underlying abstractions in our programs and
+;;;;; to build upon them and generalize them to create more powerful abstractions.
+
+;Exercise 1.40
+(define (cubic a b c)
+  (lambda (x)
+    (+ (cube x)
+       (* a (square x))
+       (* b x)
+       (c))))
+; Exercise 1.41
+(define (double f)
+  (lambda (x) (f (f x))))
+(((double (double double)) inc) 5)
+(((double (lambda (x) (double (double x)))) inc) 5)
+(((lambda (y)
+    ((lambda (x) (double (double x)))
+     ((lambda (x) (double (double x)))
+      y)))
+  inc)
+ 5)
+; apply inc 2*2*2*2 times.
+
+; Exercise 1.42
+(define (compose f g)
+  (lambda (x)
+    (f (g x))))
+
+; Exercise 1.43
+(define (repeated f n)
+  (define (iter acc current)
+    (if (= 0 current)
+        acc
+        (iter (compose f acc) (- current 1))))
+  (iter f (- n 1)))

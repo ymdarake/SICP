@@ -106,4 +106,27 @@
 (define (pair-first p) (p 0))
 (define (pair-second p) (p 1))
 
+;Exercise 2.4
+(define (pair-lambda x y)
+  (lambda (m) (m x y))); two arguments procedure
+(define (car-lambda z)
+  (z (lambda (p q) p))); apply the procedure to two arguments procedure which returns its first argument
+(define (cdr-lambda z)
+  (z (lambda (p q) q))); same but returns its second argument.
+
+;Exercise 2.5
+(define (count-divisions base n)
+  (define (iter acc reduced)
+    (if (= (remainder reduced base) 0)
+        (iter (+ acc 1) (/ reduced base))
+        acc))
+  (iter 0 n))
+(define (car-int product)
+  (count-divisions 2 product))
+(define (cdr-int product)
+  (count-divisions 3 product))
+(define (cons-int a b)
+  (* (expt 2 a)
+     (expt 3 b)))
+
 

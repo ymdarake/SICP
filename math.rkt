@@ -1,5 +1,5 @@
 #lang racket
-(provide average)
+(provide average square)
 
 (define (inc n) (+ n 1))
 (define (square n) (* n n))

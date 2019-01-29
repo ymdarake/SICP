@@ -70,3 +70,27 @@
   (display (y-point p))
   (display ")"))
 ;(print-point (midpoint-segment (make-segment (make-point 2.0 3.0) (make-point 12.4 94.5))))
+
+;Exercise 2.3
+(define (perimeter rectangle)
+  (* 2 (+ (length rectangle)
+          (width rectangle))))
+(define (area rectangle)
+  (* (length rectangle)
+     (width rectangle)))
+(define (length rectangle)
+  (car rectangle))
+(define (width rectangle)
+  (cdr rectangle))
+
+; use exercise 2.2
+(define (make-rectangle segment length)
+  (cons length
+        (sqrt
+         (let ((start (start-point segment))
+               (end (end-point segment)))
+           (+ (square (- (x-point start) (x-point end)))
+              (square (- (y-point start) (y-point end))))))))
+; we can also make rectangle by defining bottom-left and top-right.
+
+

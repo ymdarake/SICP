@@ -93,4 +93,17 @@
               (square (- (y-point start) (y-point end))))))))
 ; we can also make rectangle by defining bottom-left and top-right.
 
+;;; What Is Meant by Data?
+;; In general, we can think of data as defined by some collection of selectors and constructors,
+;; together with specified conditions that these procedures must fulfill in order to be a valid representation.
+; ex) even CONS can be defined in this way:
+(define (pair x y)
+  (define (dispatch m)
+    (cond ((= m 0) x)
+          ((= m 1) y)
+          (else (error "Argument not 0 or 1 -- CONS" m))))
+  dispatch)
+(define (pair-first p) (p 0))
+(define (pair-second p) (p 1))
+
 

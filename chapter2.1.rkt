@@ -129,4 +129,21 @@
   (* (expt 2 a)
      (expt 3 b)))
 
+; Exercise 2.6
+(define zero (lambda (f) (lambda (x) x)))
+(define (add-1 n)
+  (lambda (f) (lambda (x) (f ((n f) x)))))
+
+;one = add-1 zero
+;(lambda (f) (lambda (x) (f ((zero f) x))))
+; (zero f) is an identity function.
+(define one
+  (lambda (f) (lambda (x) (f x))))
+;two = add-1 one
+;(lambda (f) (lambda (x) (f ((one f) x))))
+(define two
+  (lambda (f) (lambda (x) (f (f x)))))
+
+
+
 

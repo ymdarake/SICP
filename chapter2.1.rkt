@@ -184,4 +184,29 @@
 (width-interval (mul-interval (make-interval 6 12) (make-interval 10 14)))
 
 
+; Exercise 2.11
+;; split it into negative pair, opposite pair and positive pair.
+
+; Exercise 2.12
+(define (center i)
+  (/ (+ (lower-bound i) (upper-bound i)) 2))
+(define (make-center-percent c p)
+  (let ((percent-in-real (/ p 100)))
+    (make-interval (* c (- 1 percent-in-real))
+                   (* c (+ 1 percent-in-real)))))
+(define (percent i)
+  (/ (* 100 (- (upper-bound i) (lower-bound i))) (+ (lower-bound i) (upper-bound i))))
+
+; Exercise 2.13
+; No scheme, just math.
+
+; Exercise 2.14, 2.15, 2.16
+; In the interval arithmetic system we've defined, some of the laws of algebra that we're accustomed to don't apply to certain operations,
+; so algebraic expressions that are equivalent in a non-interval arithmetic system are not necessarily equivalent in an interval arithmetic system.
+; For example, consider the distributive law. The distributive law states that
+; <math> a(b+c) = ab+ac </math>
+; but this law does not universally apply in our interval arithmetic system.
+
+
+
 

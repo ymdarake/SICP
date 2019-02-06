@@ -85,3 +85,12 @@
 ; Because it conses the last item from the front of the list to the answer, then gets the next item from the front.
 ; new-and-not-improved version conses the answer to the squared value,
 ; but the answer is a list, so you'll end up with (list (list ...) lastest-square). 
+
+
+;Exercise 2.23
+(define (for-each-handmade proc items)
+  (define (iter f items . execplace)
+    (if (null? items)
+        #t
+        (iter f (cdr items) (f (car items)))))
+  (iter proc items))

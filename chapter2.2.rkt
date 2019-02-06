@@ -83,3 +83,5 @@
 
 ; Exercise 2.22
 ; Because it conses the last item from the front of the list to the answer, then gets the next item from the front.
+; new-and-not-improved version conses the answer to the squared value,
+; but the answer is a list, so you'll end up with (list (list ...) lastest-square). 

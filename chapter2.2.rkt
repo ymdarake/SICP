@@ -1,4 +1,5 @@
 #lang racket
+(require "math.rkt")
 
 (define (list-ref items n)
   (if (= n 0)
@@ -70,3 +71,15 @@
           (else (iter acc (cdr ls)))))
   (iter (list first) rest))
 
+; Exercise 2.21
+(define (square-list-recur items)
+  (if (null? items)
+      '()
+      (cons (square (car items)) (square-list-recur (cdr items)))))
+
+(define (square-list-map items)
+  (map (lambda (x) (square x))
+       items))
+
+; Exercise 2.22
+; Because it conses the last item from the front of the list to the answer, then gets the next item from the front.

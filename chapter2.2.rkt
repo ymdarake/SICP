@@ -57,3 +57,16 @@
 ; It terminates the evaluation of a branch only when the list is empty or when the amount of change remaining is less than or equal to zero.
 ; Termination of the branch does not depend on the magnitude of the remaining values in the list.
 
+; Exercise 2.20
+; dotted-tail notation
+(define (same-parity first . rest)
+  (define (test x)
+    (if (= 0 (remainder first 2))
+        (lambda (x) (= 0 (remainder x 2)))
+        (lambda (x) (= 1 (remainder x 2)))))
+  (define (iter acc ls)
+    (cond ((null? ls) (reverse acc))
+          ((test (car ls)) (iter (cons (car ls) acc) (cdr ls)))
+          (else (iter acc (cdr ls)))))
+  (iter (list first) rest))
+

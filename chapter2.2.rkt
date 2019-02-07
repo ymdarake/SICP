@@ -94,3 +94,34 @@
         #t
         (iter f (cdr items) (f (car items)))))
   (iter proc items))
+
+(define (count-leaves tree)
+  (cond ((null? tree) 0)
+        ((not (pair? tree)) 1)
+        (else (+
+               (count-leaves (car tree))
+               (count-leaves (cdr tree))))))
+
+; Exercise 2.26
+(define x (list 1 2 3))
+(define y (list 4 5 6))
+;(append x y)
+;(cons x y); attach x to y's head as an element.
+;(list x y); make a list of 2-list elements.
+
+;;;;; Exercise 2.27
+;(define (deep-reverse xs)
+;  (if (or (null? xs) (not (list? xs)))
+;      xs
+;      (if (list? (car xs))
+;          (if (list? (cdr xs))
+;              (list (deep-reverse (cdr xs)) (deep-reverse (car xs)))
+;              (list (cdr xs) (deep-reverse (car xs))))
+;          (if (list? (cdr xs))
+;              (list (deep-reverse (cdr xs)) (car xs))
+;              (list (cdr xs) (car xs))))))
+(define (deep-reverse t)
+  (if (pair? t)
+      (reverse (map deep-reverse t))
+      t))
+

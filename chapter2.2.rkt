@@ -125,3 +125,9 @@
       (reverse (map deep-reverse t))
       t))
 
+; Exercise 2.28
+(define (fringe items)
+  (if (pair? items)
+      (flatten (map fringe items))
+      items))
+

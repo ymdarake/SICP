@@ -133,18 +133,18 @@
 
 ;; Exercise 2.29
 (define (make-mobile left right)
-  (list left right))
+  (cons left right))
 (define (make-branch length structure)
-  (list length structure))
+  (cons length structure))
 ;a.
 (define (left-branch mobile)
   (car mobile))
 (define (right-branch mobile)
-  (cadr mobile))
+  (cdr mobile))
 (define (branch-length branch)
   (car branch))
 (define (branch-structure branch)
-  (cadr branch))
+  (cdr branch))
 ;b.
 (define (total-weight mobile)
   (if (number? mobile)
@@ -166,7 +166,8 @@
 (define (mobile? x)
   (pair? x))
 ; (balanced? (make-mobile (make-branch 7 2) (make-branch 1 (make-mobile (make-branch 1 5) (make-branch 1 9)))))
-
+; d.
+; only 'right-branch' and 'branch-structure' should be changed.
 
 
 

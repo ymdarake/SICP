@@ -131,3 +131,42 @@
       (flatten (map fringe items))
       items))
 
+;; Exercise 2.29
+(define (make-mobile left right)
+  (list left right))
+(define (make-branch length structure)
+  (list length structure))
+;a.
+(define (left-branch mobile)
+  (car mobile))
+(define (right-branch mobile)
+  (cadr mobile))
+(define (branch-length branch)
+  (car branch))
+(define (branch-structure branch)
+  (cadr branch))
+;b.
+(define (total-weight mobile)
+  (if (number? mobile)
+      mobile
+      (+ (total-weight (branch-structure (left-branch mobile)))
+         (total-weight (branch-structure (right-branch mobile))))))
+; (total-weight (make-mobile (make-branch 1 2) (make-branch 1 (make-mobile (make-branch 1 5) (make-branch 1 9)))))
+;c.
+(define (balanced? mobile)
+  (= (torque (left-branch mobile))
+     (torque (right-branch mobile))))
+(define (torque branch)
+  (let ((structure (branch-structure branch)))
+    (if (mobile? (branch-structure branch))
+        (* (total-weight structure)
+           (branch-length branch))
+        (* structure
+           (branch-length branch)))))
+(define (mobile? x)
+  (pair? x))
+; (balanced? (make-mobile (make-branch 7 2) (make-branch 1 (make-mobile (make-branch 1 5) (make-branch 1 9)))))
+
+
+
+

@@ -205,6 +205,18 @@
        tree))
 (define (square-tree/tree-map tree) (tree-map square tree))
 
+; Exercise 2.32
+(define (subsets s)
+  (if (null? s)
+      (list '())
+      (let ((rest (subsets (cdr s))))
+        (append rest (map (lambda (x) (cons (car s) x)) rest)))))
+
+;The problem now is to find the function (λ (x)) to map, which has the characteristics:
+;'(())               ⟼ '((3))                     given s = '(3)
+;'(() (3))           ⟼ '((2) (2 3))               given s = '(2 3)
+;'(() (3) (2) (2 3)) ⟼ '((1) (1 3) (1 2) (1 2 3)) given s = '(1 2 3)
+;Which is plainly the result of prepending the first item of S to each sublist X; that is, to cons the car of S onto each sublist. In Scheme parlance, (λ (x) (cons (car s) x)
 
 
 

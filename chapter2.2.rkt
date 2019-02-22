@@ -170,4 +170,29 @@
 ; only 'right-branch' and 'branch-structure' should be changed.
 
 
+;;; Mapping over trees
+(define (scale-tree-recur tree factor)
+  (cond ((null? tree) '())
+        ((not (pair? tree)) (* tree factor))
+        (else (cons (scale-tree-recur (car tree) factor) (scale-tree-recur (cdr tree) factor)))))
+(define (scale-tree-map tree factor)
+  (map (lambda (sub-tree)
+         (if (pair? sub-tree)
+             (scale-tree-map sub-tree factor)
+             (* sub-tree factor)))
+       tree))
+; (scale-tree-recur (list 1 (list 2 (list 3 4) 5) (list 6 7))10 )
 
+; Exercise 2.30
+(define (square-tree-recur tree)
+  (cond ((null? tree) '())
+        ((not (pair? tree)) (square tree))
+        (else (cons (square-tree-recur (car tree))
+                    (square-tree-recur (cdr tree))))))
+(define (square-tree-map tree)
+  (map (lambda (sub-tree)
+         (if (pair? sub-tree)
+             (square-tree-map sub-tree)
+             (square sub-tree)))
+       tree))
+; (square-tree-recur (list 1 (list 2 (list 3 4) 5) (list 6 7)))

@@ -297,7 +297,12 @@
                     cols))))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-
-
-
-
+; Exercise 2.38
+(define (fold-left op initial sequence)
+  (define (iter result rest)
+    (if (null? rest)
+        result
+        (iter (op result (car rest))
+              (cdr rest))))
+  (iter initial sequence))
+; (communicativity and associativity) guarantee that fold-right and fold-left will produce the same values for any sequence.

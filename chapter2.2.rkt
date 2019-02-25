@@ -270,7 +270,11 @@
               0
               coefficient-sequence))
 
-
+; Exercise 2.35
+(define (count-leaves-acc t)
+  (accumulate (lambda (leaf acc) (+ acc 1))
+              0
+              (enumerate-tree t)))
 
 
 

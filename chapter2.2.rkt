@@ -306,3 +306,12 @@
               (cdr rest))))
   (iter initial sequence))
 ; (communicativity and associativity) guarantee that fold-right and fold-left will produce the same values for any sequence.
+
+; Exercise 2.39
+(define (reverse-r sequence)
+  (foldr (lambda (first reversed) (append reversed (list first))) '() sequence))
+(define (reverse-l sequence)
+  (foldl (lambda (x y) (cons x y)) '() sequence))
+
+
+

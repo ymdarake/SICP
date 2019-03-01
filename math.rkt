@@ -1,5 +1,5 @@
 #lang racket
-(provide average square)
+(provide average square prime?)
 
 (define (inc n) (+ n 1))
 (define (square n) (* n n))
@@ -27,3 +27,4 @@
         (else (gcd n (remainder m n)))))
 (define (relative-prime? m n)
   (= (gcd m n) 1))
+

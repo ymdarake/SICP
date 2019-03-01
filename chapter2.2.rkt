@@ -317,18 +317,20 @@
 
 ;;; Nested Mappings
 
-(accumulate append
-            '()
-            (map (lambda (i)
-                   (map (lambda (j) (list i j))
-                        (enumerate-interval 1 (- i 1))))
-                 (enumerate-interval 1 5)))
+;(accumulate append
+;            '()
+;            (map (lambda (i)
+;                   (map (lambda (j) (list i j))
+;                        (enumerate-interval 1 (- i 1))))
+;                 (enumerate-interval 1 5)))
 
 ; the list created by applying proc to seq (= is list of list) will be appended to flat list.
 (define (flatmap proc seq)
   (accumulate append '() (map proc seq)))
-; (map (lambda (inner-list) (map square inner-list)) (list (list 3 5 8) (list 5 7 12)))
+;; (map (lambda (inner-list) (map square inner-list)) (list (list 3 5 8) (list 5 7 12)))
 ; '((9 25 64) (25 49 144))
+;; (flatmap (lambda (inner-list) (map square inner-list)) (list (list 3 5 8) (list 5 7 12)))
+; '(9 25 64 25 49 144)
 
 (define (prime-sum? pair)
   (prime? (+ (car pair) (cadr pair))))
@@ -345,9 +347,9 @@
                        (enumerate-interval 1 (- i 1))))
                 (enumerate-interval 1 n)))))
 
-((lambda (i) (map
-              (lambda (j) (list i j))
-              (enumerate-interval 1 (- i 1))))
- 5)
+;((lambda (i) (map
+;              (lambda (j) (list i j))
+;              (enumerate-interval 1 (- i 1))))
+; 5)
 ; '((5 1) (5 2) (5 3) (5 4))
 

@@ -353,3 +353,18 @@
 ; 5)
 ; '((5 1) (5 2) (5 3) (5 4))
 
+;;; for each item x in S, recursively generate the permutations of S.
+(define (permutations s)
+  (if (null? s); empty set?
+      (list '())
+      (flatmap (lambda (x)
+                 (map (lambda (p) (cons x p))
+                      (permutations (remove x s))))
+               s)))
+(define (remove item sequence)
+  (filter (lambda (x) (not (= x item)))
+          sequence))
+
+
+
+

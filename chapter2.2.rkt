@@ -366,5 +366,18 @@
           sequence))
 
 
-
-
+; Exercise 2.40
+(define (unique-pairs n)
+  (flatmap
+   (lambda (i)
+     (map (lambda (j) (list i j))
+          (enumerate-interval 1 (- i 1))))
+   (enumerate-interval 1 n)))
+; 1. enumerate
+; 2. for each x,
+;    i. enumerate y = 1, 2, 3, ..., x - 1
+;   ii. make pair x with y, resulting... ((x, y1), (x, y2), (x, y3), ..., (x, yx-1))
+; 3. resulting
+;    ... list of list of (x, y1), ..., (x, yx-1)
+;    so flatten them to make the form of
+;    (xi, y1), (xi, y2), ..., (xi, yi-1), (xi+1, y1), ...

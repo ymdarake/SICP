@@ -381,3 +381,38 @@
 ;    ... list of list of (x, y1), ..., (x, yx-1)
 ;    so flatten them to make the form of
 ;    (xi, y1), (xi, y2), ..., (xi, yi-1), (xi+1, y1), ...
+
+; Exercise 2.41
+; Premise:
+; given two integers n, s.
+; 0 < i < j < k <= n
+; i + j + k = s
+; Procedures:
+; 1. enumerate 3 to n.
+; 2. for each x,
+;    i. enumerate y = 2, 3, 4, ..., x - 1
+;   ii. for each y,
+;        a. enumerate z = 1, 2, 3, ..., y -1
+;        b. make triple x, y, z, resulting... (((x, y1, z1), (x, y1, z2), (x, y1, zy1-1)), ((x, y2, z1), ...), ((x, yx-1, z1), ..., (x, yx-1, zyx-1-1)))
+; 3. resulting
+;    ... list of list of ((x, y, z))
+;    so flatten them to make the form of
+;    (x1, y1, z1),(x1, y1, z2), ..., (x1, y2, z1), ..., (xn, yxn-1, zyxn-1-1)
+; 4. filter them by checking if they are summed to be s.
+(define (distinct-triples-equal-to n s)
+  (filter (lambda (triple) (= s (sum triple)))
+          (flatmap
+           (lambda (k)
+             (flatmap (lambda (j)
+                    (map (lambda (i) (newline) (display (list i j k)) (list i j k))
+                         (enumerate-interval 1 (- j 1))))
+                  (enumerate-interval 2 (- k 1))))
+           (enumerate-interval 3 n))))
+(define (sum ls)
+  (foldl + 0 ls))
+
+
+
+
+
+

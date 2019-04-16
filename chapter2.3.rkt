@@ -48,6 +48,10 @@
                         (deriv (multiplicand exp) var))
           (make-product (deriv (multiplier exp) var)
                         (multiplicand exp))))
+        ((exponentiation? exp)
+         (make-product (exponent exp)
+                       (make-product (make-exponentiation (base exp) (make-sum (exponent exp) -1))
+                                     (deriv (base exp) var))))
         (else (error "unknown expression type -- DERIV" exp))))
 
 (define (variable? x) (symbol? x))
@@ -85,12 +89,24 @@
 (define (=number? exp num)
   (and (number? exp) (= exp num)))
 
+;; Exercise 2.56
+; DEFINE exponential AS (** base exponent)
+(define (exponentiation? exp) (eq? (car exp) '**))
 
+(define (base exp) (cadr exp))
 
+(define (exponent exp) (caddr exp))
 
-
-
-
-
-
+(define (make-exponentiation base exponent)
+  (cond ((=number? exponent 0) 1)
+        ((=number? exponent 1) base)
+        ((=number? base 1) 1)
+        ((and (number? base) (number? exponent)) (expt base exponent))
+        (else (list '** base exponent))))
+;(deriv '(** 2 3) 'x)
+;Output: 0
+;(deriv '(** x 3) 'x)
+;Output: (* 3 (** x 2))
+;(deriv '(** x y) 'x)
+;Output: (* y (** x (+ y -1)))
 

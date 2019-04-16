@@ -77,14 +77,33 @@
 
 (define (addend s) (cadr s))
 
-(define (augend s) (caddr s))
-
 (define (product? x)
   (and (pair? x) (eq? (car x) '*)))
 
 (define (multiplier p) (cadr p))
 
-(define (multiplicand p) (caddr p))
+; Exercise 2.57
+;(define (augend s)
+;  (let ((rest (cddr s)))
+;    (cond ((= 0 (length rest)) 0)
+;          ((= 1 (length rest)) (car rest))
+;          (else (cons '+ rest)))))
+;(define (multiplicand p)
+;  (let ((rest (cddr p)))
+;    (cond ((= 0 (length rest)) 1)
+;          ((= 1 (length rest)) (car rest))
+;          (else (cons '* rest)))))
+;; TO BE SIMPLIFIED AS
+(define (binary-expression? exp)
+  (null? (cdddr exp)))
+(define (second-term exp) (caddr exp))
+(define (all-but-first-term exp) (cddr exp))
+(define (reduce-expression exp op)
+  (if (binary-expression? exp)
+      (second-term exp)
+      (cons op (all-but-first-term exp))))
+(define (augend s) (reduce-expression s '+))
+(define (multiplicand p) (reduce-expression p '*))
 
 (define (=number? exp num)
   (and (number? exp) (= exp num)))

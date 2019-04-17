@@ -129,3 +129,37 @@
 ;(deriv '(** x y) 'x)
 ;Output: (* y (** x (+ y -1)))
 
+;; Exercise 2.57
+;a
+; To switch from prefix notation to infix, only the positions of the operator and addend are swapped; the augend remains the same. We simply need to change sum?, addend and make-sum.
+
+
+;;; 2.3.3 Representing Sets
+
+; union-set, intersection-set, element-of-set?, adjoin-set.
+; Sets as Unordered Lists
+(define (element-of-set? x set)
+  (cond ((null? set) false)
+        ((equal? (car set) x) true)
+        (else (element-of-set? x (cdr set)))))
+
+(define (adjoin-set x set)
+  (if (element-of-set? x set)
+      set
+      (cons x set)))
+
+(define (intersection-set set1 set2)
+  (cond ((or (null? set1) (null? set2)) '())
+        ((element-of-set? (car set1) set2)
+         (cons (car set1)
+               (intersection-set (cdr set1) set2)))
+        (else (intersection-set (cdr set1) set2))))
+
+
+
+
+
+
+
+
+

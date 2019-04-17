@@ -154,9 +154,21 @@
          (cons (car set1)
                (intersection-set (cdr set1) set2)))
         (else (intersection-set (cdr set1) set2))))
+; Exercise 2.59
+(define (union-set set1 set2)
+  (define (iter s1 s2 acc)
+    (cond ((null? s1)
+           acc)
+          ((not (element-of-set? (car s1) s2))
+           (iter (cdr s1) s2 (cons (car s1) acc)))
+          (else
+           (iter (cdr s1) s2 acc))))
+  (iter set1 set2 set2))
 
-
-
+(define s1 '(a b c))
+(define s2 '(b d e))
+(define s3 '(z))
+(define s4 '())
 
 
 

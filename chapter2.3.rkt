@@ -170,8 +170,18 @@
 (define s3 '(z))
 (define s4 '())
 
-
-
+; Exercise 2.60
+;(define (adjoin-set x set) (cons x set))
+;The number of steps required by procedure adjoin-set has gone from θ(n) to θ(1), i.e., it now runs in constant time.
+;Sets are still represented as lists and the definitions of the remaining procedures are unchanged
+;so we can expect their orders of growth to be the same as well (θ(n) for element-of-set?, θ(n2) for intersection-set and union-set).
+;Storage for sets will require at least as much space in this representation as they did in the "no duplicates" representation,
+;probably more for most applications. Therefore, the n in the growth estimates given above will likely be larger by some constant factor that varies from application to application.
+;Because only intersection-set can ever produce a set smaller than its inputs, this factor is possibly unbounded for many applications.
+;In general, then, when using this "duplicates OK" representation, all procedures except adjoin-set will be slower by some constant factor (possibly a quite large constant factor),
+;and sets will require additional storage proportional to the same factor.
+;Therefore, we would probably only want to use this representation for applications in which adjoin-set is a frequent operation,
+;compared to the other procedures, and in which the size of our sets is not an issue.
 
 
 

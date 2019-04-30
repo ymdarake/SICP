@@ -1,5 +1,7 @@
 #lang racket
 
+(provide memq)
+
 ;;;;; 2.3 Symbolic Data
 
 
@@ -205,6 +207,5 @@
         ((> x (entry set)) (make-tree (entry set)
                                       (left-branch set)
                                       (adjoin-set x (right-branch set))))))
-
 
 

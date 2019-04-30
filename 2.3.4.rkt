@@ -91,4 +91,33 @@
            (else (error "symbol not in tree -- ENCODE-SYMBOL" symbol)))) 
    (encode-symbol-1 tree '())) 
 
+;; Exercise 2.69
+(define (generate-huffman-tree pairs)
+  (successive-merge (make-leaf-set pairs)))
+; successive-merge: using make-code-tree to successively merge the smallest-weight elements of the set
+; until there is only one element left, which is the desired Huffman tree.
+; leaf-set here is the ORDERED LIST.
+
+ (define (successive-merge tree-ordered-set) 
+   (if (= (size-of-set tree-ordered-set) 1) 
+       (first-in-ordered-set tree-ordered-set) 
+       (let ((first (first-in-ordered-set tree-ordered-set)) 
+             (second (second-in-ordered-set tree-ordered-set)) 
+             (rest (subset tree-ordered-set 2))) 
+         (successive-merge (adjoin-set (make-code-tree first second) 
+                                       rest))))) 
+  
+ (define size-of-set length) 
+ (define first-in-ordered-set car) 
+ (define second-in-ordered-set cadr) 
+ (define (subset set n) 
+     (if (= n 0) 
+         set  
+         (subset (cdr set) (- n 1)))) 
+
+
+
+
+
+
 

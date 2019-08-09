@@ -262,15 +262,15 @@
 (put 'op 'quote text-of-quotation) 
 (put 'op 'set! eval-assignment) 
 (put 'op 'define eval-definition) 
-(put 'op 'if eval-if) 
-(put 'op 'lambda (lambda (x y)  
-                   (make-procedure (lambda-parameters x) (lambda-body x) y))) 
-(put 'op 'begin (lambda (x y)  
-                  (eval-sequence (begin-sequence x) y))) 
-(put 'op 'cond (lambda (x y)  
-                 (evaln (cond->if x) y))) 
+(put 'op 'if eval-if)
+(put 'op 'lambda (lambda (x y)
+                   (make-procedure (lambda-parameters x) (lambda-body x) y)))
+(put 'op 'begin (lambda (x y)
+                  (eval-sequence (begin-sequence x) y)))
+(put 'op 'cond (lambda (x y)
+                 (evaln (cond->if x) y)))
   
-(define (evaln expr env) 
+(define (evaln expr env)
   (cond ((self-evaluating? expr) expr) 
         ((variable? expr) (lookup-variable-value expr env)) 
         ((get 'op (car expr)) (applyn (get 'op (car expr) expr env))) 
@@ -280,7 +280,46 @@
         (else (error "Unknown expression type -- EVAL" expr))))
 
 ; Exercise 4.4
+(define (and-clauses exp) (cdr exp))
+(define (or-clauses exp) (cdr exp))
+(define (first-exp seq) (car seq))
+(define (rest-exps seq) (cdr seq))
+(define (empty-exps? seq) (null? seq))
+(define (last-exp? seq) (null? (cdr exp)))
 
+(define (eval-and exps env)
+  (cond ((empty-exps? exps) 'true)
+        (else (let ((first (eval (first-exp exps) env)))
+                (cond ((last-exp? exps) first)
+                      (first (eval-and (rest-exps exps) env))
+                      (else 'false))))))
+
+(define (eval-or exps env)
+  (cond ((empty-exps? exps) 'false)
+        (else (let ((first (eval (first-exp exps) env)))
+                (cond ((last-exp? exps) first)
+                      (first 'true)
+                      (else (eval-or (rest-exps exps) env)))))))
+
+(define (and->if exp)
+  (expand-and-clauses (and-clauses exp)))
+
+(define (expand-and-clauses clauses)
+  (cond ((empty-exps? clauses) 'false)
+        ((last-exp? clauses) (first-exp clauses))
+        (else (make-if (first-exp clauses)
+                       (expand-and-clauses (rest-exps clauses))
+                       'false))))
+
+(define (or->if exp)
+  (expand-or-clauses (or-clauses exp)))
+
+(define (expand-or-clauses clauses)
+  (cond ((empty-clauses clauses) 'false)
+        ((last-exp? clauses) (first-exp clauses))
+        (else (make-if (first-exp clauses)
+                       'true
+                       (expand-or-clauses (rest-exps clauses))))))
 
 
 

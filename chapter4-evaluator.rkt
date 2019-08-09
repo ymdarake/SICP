@@ -132,3 +132,61 @@
           (cons first rest)))))
 
 
+;;;;;; 4.1.2 Representing Expressions
+
+;;;Here is the specification of the syntax of our language:
+
+;The only self-evaluating items are numbers and strings:
+(define (self-evaluating? exp)
+  (cond ((number? exp) true)
+        ((string? exp) true)
+        (else false)))
+
+;Variables are represented by symbols:
+(define (variable? exp) (symbol? exp))
+
+;Quotations have the form (quote ⟨text-of-quotation⟩): ... 'a => (quote a)
+(define (quoted? exp)
+  (tagged-list exp 'quote))
+(define (text-of-quotation exp)
+  (cadr exp))
+(define (tagged-list? exp tag)
+  (if (pair? exp)
+      (eq? (car exp) tag)
+      false))
+
+;Assignments have the form (set! ⟨var⟩ ⟨value⟩):
+(define (assignment? exp)
+  (tagged-list? exp 'set!))
+(define (assignment-variable exp)
+  (cadr exp))
+(define (assignment-value exp)
+  (caddr exp))
+
+;Definitions have the form
+;(define ⟨var⟩ ⟨value⟩)
+;or the form
+;(define (⟨var⟩ ⟨param1⟩ ... ⟨paramn⟩) ⟨body⟩)
+;The latter form (standard procedure definition) is syntactic sugar for
+;(define ⟨var⟩ (lambda (⟨param1⟩ … ⟨paramn⟩) ⟨body⟩))
+
+(define (definition? exp)
+  (tagged-list? exp 'define))
+(define (definition-variable exp)
+  (if (symbol? (cadr exp))
+      (cadr exp);    (cadr  '(define hoge (lambda () ())))
+      (caadr exp))); (caadr '(define (hoge foo bar) (<body>)))
+(define (definition-value exp)
+  (if (symbol? (cadr exp))
+      (caddr exp)
+      (make-lambda (cdadr exp)    ;formal parameters ... '(foo bar)
+                   (cddr exp))))  ;body ... '(<body>)
+
+;Lambda expressions are lists that begin with the symbol lambda:
+(define (lambda? exp)
+  (tagged-list? exp 'lambda))
+(define (lambda-parameters exp) (cadr exp))
+(define (lambda-body exp) (cddr exp))
+(define (make-lambda parameters body)
+  (cons 'lambda (cons parameters body)))
+

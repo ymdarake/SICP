@@ -249,9 +249,13 @@
         (if (cond-else-clause? first)
             (if (null? rest)
                 (sequence->exp (cond-actions first))
-                (error "ELSE clause isn't last: COND-IF" clauses))
+                (error "ELSE clause isn't last: COND->IF" clauses))
             (make-if (cond-predicate first)
-                     (sequence->exp (cond-actions first))
+                     (let ((action (cond-actions first))
+                           (predicate (cond-predicate first)))
+                       (if (eq? (car action) '=>)
+                           (list (cadr action) predicate)
+                           (sequence->exp action)))
                      (expand-clauses rest))))))
 
 ; Exercise 4.3
@@ -321,7 +325,23 @@
                        'true
                        (expand-or-clauses (rest-exps clauses))))))
 
-
+; Exercise 4.5
+(define (expand-clauses-ex4.5 clauses)
+  (if (null? clauses)
+      'false
+      (let ((first (car clauses))
+            (rest (cdr clauses)))
+        (if (cond-else-clause? first)
+            (if (null? rest)
+                (sequence->exp (cond-actions first))
+                (error "ELSE clause isn't last: COND->IF" clauses))
+            (make-if (cond-predicate first)
+                     (let ((action (cond-actions first));;; <- Revised!
+                           (predicate (cond-predicate first)))
+                       (if (eq? (car action) '=>)
+                           (list (cadr action) predicate)
+                           (sequence->exp action)))
+                     (expand-clauses rest))))))
 
 
 

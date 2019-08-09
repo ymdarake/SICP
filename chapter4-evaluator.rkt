@@ -190,3 +190,41 @@
 (define (make-lambda parameters body)
   (cons 'lambda (cons parameters body)))
 
+;Conditionals begin with if and have a predicate, a consequent, and an (optional) alternative. If the expression has no alternative part, we provide false as the alternative.
+;NOTE: The value of an if expression when the predicate is false and there is no alternative is unspecified in Scheme; we have chosen here to make it false.
+;    : We will support the use of the variables true and false in expressions to be evaluated by binding them in the global environment. See 4.1.4.
+(define (if? exp) (tagged-list? exp 'if))
+(define (if-predicate exp) (cadr exp))
+(define (if-consequent exp) (caddr exp))
+(define (if-alternative exp)
+  (if (not (null? (cdddr exp)))
+      (cadddr exp)
+      'false)); SEE NOTE above.
+(define (make-if predicate consequent alternative)
+  (list 'if predicate consequent alternative))
+
+;Begin packages a sequence of expressions into a single expression.
+;We include syntax operations on begin expressions to extract the actual sequence from the begin expression,
+;as well as selectors that return the first expression and the rest of the expressions in the sequence
+(define (begin? exp)
+  (tagged-list? exp 'begin))
+(define (begin-actions exp) (cdr exp))
+(define (last-exp? seq) (null? (cdr seq)))
+(define (first-exp seq) (car seq))
+(define (rest-exps seq) (cdr seq))
+
+; for use by cond->if (MEMO: TO BE GONE OVER LATER.)
+(define (sequence->exp seq)
+  (cond ((null? seq) seq)
+        ((last-exp? seq) (first-exp seq))
+        (else (make-begin seq))))
+(define (make-begin sesq) (cons 'begin seq))
+
+(define (application? exp) (pair? exp))
+(define (operator exp) (car exp))
+(define (operands exp) (cdr exp))
+(define (no-operands? ops) (null? ops))
+(define (first-operand ops) (car ops))
+(define (rest-operands ops) (cdr ops))
+
+

@@ -102,3 +102,33 @@
          (eval (first-exp exps) env)
          (eval-sequence (rest-exps exps) env))))
 
+;Assignments and definitions
+(define (eval-assignment exp env)
+  (set-variable-value! (assignment-variable exp)
+                       (eval (assignment-value exp) env)
+                       env)
+  'ok)
+
+(define (eval-definition exp env)
+  (define-variable! (definition-variable exp)
+                    (eval (definition-value exp) env)
+                    env)
+  'ok)
+
+;; Exercise 4.1
+; left-to-right
+(define (list-of-values-lr exps env) 
+  (if (no-operands? exps) 
+      '() 
+      (let ((first (eval (first-operand exps) env))) 
+        (let ((rest (list-of-values-lr (rest-operands exps) env))) 
+          (cons first rest))))) 
+; right-to-left
+(define (list-of-values-rl exps env)
+  (if (no-operands? exps)
+      '()
+      (let ((rest (list-of-values-rf (rest-operands exps) env)))
+        (let ((first (eval (first-operand exps) env)))
+          (cons first rest)))))
+
+

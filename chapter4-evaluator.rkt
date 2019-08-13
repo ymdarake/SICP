@@ -341,8 +341,21 @@
                        (if (eq? (car action) '=>)
                            (list (cadr action) predicate)
                            (sequence->exp action)))
-                     (expand-clauses rest))))))
+                     (expand-clauses-ex4.5 rest))))))
 
+; Exercise 4.6
+(define (let? exp)
+  (tagged-list? exp 'let))
+(define (let-variables exp)
+  (map car (cadr exp)))
+(define (let-body exp)
+  (cddr exp))
+(define (let-arguments exp)
+  (map cadr (cadr exp)))
+(define (let->combination exp)
+  (list
+   (make-lambda (let-variables exp) (let-body exp)
+   (let-arguments exp)))
 
 
 

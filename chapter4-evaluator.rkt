@@ -346,7 +346,7 @@
 ; Exercise 4.6
 (define (let? exp)
   (tagged-list? exp 'let))
-(define (let-variables exp)
+(define (let-bindings exp)
   (map car (cadr exp)))
 (define (let-body exp)
   (cddr exp))
@@ -354,8 +354,33 @@
   (map cadr (cadr exp)))
 (define (let->combination exp)
   (list
-   (make-lambda (let-variables exp) (let-body exp)
-   (let-arguments exp)))
+   (make-lambda (let-bindings exp) (let-body exp)
+   (let-arguments exp))))
 
-
-
+; Exercise 4.7
+(define (let*? exp)
+  (tagged-list? exp 'let*))
+(define (let*-bindings exp)
+  (cadr exp))
+(define (let*-body exp)
+  (caddr exp))
+(define (let*->nested-lets exp)
+  (let ((bindings (let*-bindings exp))
+        (body (let*-body exp)))
+    (define (make-nested-lets exps)
+      (if (null? exps)
+          body
+          (list 'let (list (car exps)) (make-nested-lets (cdr exps)))))
+    (make-nested-lets bindings)))
+; another (make let* body a sequence of expressions)
+(define (let-args exp) (cadr exp)) 
+(define (let-body exp) (cddr exp)) 
+(define (make-let args body) (cons 'let (cons args body))) 
+  
+(define (let*->nested-lets exp) 
+  (define (reduce-let* args body) 
+    (if (null? args) 
+        (sequence->exp body);;; !! let* body is a sequence of expressions.
+        (make-let (list (car args)) 
+                  (list (reduce-let* (cdr args) body))))) 
+  (reduce-let* (let-args exp) (let-body exp))) 

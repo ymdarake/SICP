@@ -346,7 +346,7 @@
 ; Exercise 4.6
 (define (let? exp)
   (tagged-list? exp 'let))
-(define (let-bindings exp)
+(define (let-variables exp)
   (map car (cadr exp)))
 (define (let-body exp)
   (cddr exp))
@@ -354,7 +354,7 @@
   (map cadr (cadr exp)))
 (define (let->combination exp)
   (cons
-   (make-lambda (let-bindings exp) (let-body exp))
+   (make-lambda (let-variables exp) (let-body exp))
    (let-arguments exp)))
 
 ; Exercise 4.7
@@ -383,4 +383,27 @@
         (sequence->exp body);;; !! let* body is a sequence of expressions.
         (make-let (list (car args)) 
                   (list (reduce-let* (cdr args) body))))) 
-  (reduce-let* (let-args exp) (let-body exp))) 
+  (reduce-let* (let-args exp) (let-body exp)))
+
+
+
+; Exercise 4.8
+(define (named-let? expr) (and (let? expr) (symbol? (cadr expr)))) 
+(define (named-let-func-name expr) (cadr expr)) 
+(define (named-let-func-body expr) (cadddr expr)) 
+(define (named-let-func-parameters expr) (map car (caddr expr))) 
+(define (named-let-func-inits expr) (map cadr (caddr expr))) 
+(define (named-let->func expr) 
+  (list 'define  
+        (cons (named-let-func-name expr) (named-let-func-parameters expr)) 
+        (named-let-func-body expr))) 
+(define (let->combination expr) 
+  (if (named-let? expr) 
+      (sequence->exp (list (named-let->func expr)
+                           (cons (named-let-func-name expr) (named-let-func-inits expr))))
+      (cons (make-lambda (let-variables expr) (list (let-body expr)))
+            (let-arguments expr))))
+
+(define ex-named '(let fib-iter ((a 1) (b 0) (count 10)) (if (= count 0) b (fib-iter (+ a b) a (- count 1)))))
+(let->combination ex-4.6)
+(let->combination ex-named)

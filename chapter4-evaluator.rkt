@@ -353,9 +353,9 @@
 (define (let-arguments exp)
   (map cadr (cadr exp)))
 (define (let->combination exp)
-  (list
-   (make-lambda (let-bindings exp) (let-body exp)
-   (let-arguments exp))))
+  (cons
+   (make-lambda (let-bindings exp) (let-body exp))
+   (let-arguments exp)))
 
 ; Exercise 4.7
 (define (let*? exp)

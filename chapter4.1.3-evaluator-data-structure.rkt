@@ -150,4 +150,15 @@
                            (cons (car vals) new-vals))))) 
     (unbound vars vals '() '()))) 
   
-;; add this in eval 
+;; add this in eval
+
+; Exercise 4.15
+(define (run-forever)
+  (run-forever))
+
+(define (try p)
+  (if (halts? p p)
+      (run-forever)
+      'halted))
+;Now consider evaluating the expression (try try)
+; Turing Halting Problem.

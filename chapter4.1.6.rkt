@@ -83,3 +83,22 @@
 (define *unassigned* '())
 (define example-body '((define u ⟨e1⟩) (define v ⟨e2⟩) ⟨e3⟩))
 (scan-out-defines example-body)
+
+
+;;; 4.2 Lazy Evaluation
+
+;Exercise 4.26
+(define (unless? exp)
+  (tagged-list? exp 'unless))
+(define (unless-predicate exp)
+  (cadr exp))
+(define (unless-consequent exp)
+  (caddr exp))
+(define (unless-alternative exp)
+  (if (not (null? (cdddr exp)))
+      (cadddr exp)
+      #f))
+(define (unless->if exp)
+  (make-if (unless-predicate exp)
+           (unless-alternative exp)
+           (unless-consequent exp)))

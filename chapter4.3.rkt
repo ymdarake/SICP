@@ -3,7 +3,7 @@
 ;;; Nondeterministic Computing
 
 ; Amb
-
+(define amb #t); to compile this file.
 ; Amb with no choices—the expression (amb)—is an expression with no acceptable values.
 ; Operationally, we can think of (amb) as an expression that when evaluated causes the computation to “fail”:
 ; The computation aborts and no value is produced.
@@ -78,3 +78,83 @@ try-again
 
 ; Exercise 4.37
 ; Much better, because Ben's procedure doesn't search k in the amb way.
+
+#|
+(define (multiple-dwelling)
+  (let ((baker (amb 1 2 3 4 5))
+        (cooper (amb 1 2 3 4 5))
+        (fletcher (amb 1 2 3 4 5))
+        (miller (amb 1 2 3 4 5))
+        (smith (amb 1 2 3 4 5)))
+    (require
+     (distinct? (list baker cooper fletcher 
+                      miller smith)))
+    (require (not (= baker 5)))
+    (require (not (= cooper 1)))
+    (require (not (= fletcher 5)))
+    (require (not (= fletcher 1)))
+    (require (> miller cooper))
+    (require
+     (not (= (abs (- smith fletcher)) 1)))
+    (require 
+     (not (= (abs (- fletcher cooper)) 1)))
+    (list (list 'baker baker)
+          (list 'cooper cooper)
+          (list 'fletcher fletcher)
+          (list 'miller miller)
+          (list 'smith smith))))
+|#
+; =>
+;((baker 3) (cooper 2) (fletcher 4)
+; (miller 5) (smith 1))
+
+; Exercise 4.39
+; Conditions with more failure cases come upper.
+
+; Exercise 4.40
+(define (multiple-dwelling)
+  (let ((backer (amb 1 2 3 4 5)))
+       (require (not (= backer 5)))
+       (let ((cooper (amb 1 2 3 4 5)))
+            (require (not (= cooper 1)))
+            (require (distinct? (list backer cooper)))
+            (let ((fletcher (amb 1 2 3 4 5)))
+                 (require (not (= fletcher 5)))
+                 (require (not (= fletcher 1)))
+                 (require (not (= (abs (- fletcher cooper)) 1)))
+                 (require (distinct? (list backer cooper fletcher)))
+                 (let ((miller (amb 1 2 3 4 5)))
+                      (require (> miller cooper))
+                      (require (distinct? (list backer cooper fletcher miller)))
+                      (let ((smith (amb 1 2 3 4 5)))
+                           (require (not (= (abs (- smith fletcher)) 1)))
+                           (require (distinct? (list backer cooper fletcher miller smith)))
+                           (list (list 'backer backer)
+                                 (list 'cooper cooper)
+                                 (list 'fletcher fletcher)
+                                 (list 'miller miller)
+                                 (list 'smith smith))))))))
+
+; Exercise 4.41
+(define (multiple-dwelling-pred ls)
+  (let ((backer (car ls))
+        (cooper (cadr ls))
+        (fletcher (caddr ls))
+        (miller (cadddr ls))
+        (smith (cadddr (cdr ls))))
+    (and (distinct? (list backer cooper fletcher miller smith))
+         (not (= backer 5))
+         (not (= cooper 1))
+         (not (= fletcher 5))
+         (not (= fletcher 1))
+         (> miller cooper)
+         (not (= (abs (- smith fletcher)) 1))
+         (not (= (abs (- fletcher cooper)) 1)))))
+
+(define (distinct? ls)
+  (cond ((null? ls) #t)
+        ((null? (cdr ls)) #t)
+        ((member (car ls) (cdr ls)) #f)
+        (else (distinct? (cdr ls)))))
+
+(filter multiple-dwelling-pred (permutations '(1 2 3 4 5)))

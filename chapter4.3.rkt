@@ -75,3 +75,6 @@ try-again
             (let ((j (an-integer-between i k)))
                  (require (= (+ (* i i) (* j j)) (* k k)))
                  (list i j k)))))
+
+; Exercise 4.37
+; Much better, because Ben's procedure doesn't search k in the amb way.

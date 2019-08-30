@@ -3,7 +3,8 @@
 ;;; Nondeterministic Computing
 
 ; Amb
-(define amb #t); to compile this file.
+(define amb (lambda () #t)); to compile this file.
+
 ; Amb with no choices—the expression (amb)—is an expression with no acceptable values.
 ; Operationally, we can think of (amb) as an expression that when evaluated causes the computation to “fail”:
 ; The computation aborts and no value is produced.
@@ -186,4 +187,128 @@ try-again
           (list 'joan joan)
           (list 'kitty kitty)
           (list 'mary mary))))
+
+;; Parsing natural language
+
+(define nouns '(noun student professor cat class))
+(define verbs '(verb studies lectures eats sleeps))
+(define articles '(article the a))
+(define prepositions '(prep for to in by with))
+
+(define (parse input)
+  (set! *unparsed* input)
+  (let ((sent (parse-sentence)))
+    (require (null? *unparsed*))
+    sent))
+(define *unparsed* '())
+
+(define (parse-sentence)
+  (list 'sentence
+        (parse-noun-phrase)
+        (parse-word verbs)))
+
+(define (parse-noun-phrase)
+  (list 'noun-phrase
+        (parse-word articles)
+        (parse-word nouns)))
+
+(define (parse-word word-list)
+  (require (not (null? *unparsed*)))
+  (require (memq (car *unparsed*)
+                 (cdr word-list)))
+  (let ((found-word (car *unparsed*)))
+    (set! *unparsed* (cdr *unparsed*))
+    (list (car word-list) found-word)))
+
+;; Observe that a given input may have more than one legal parse.
+;; In the sentence “The professor lectures to the student with the cat,”
+;; it may be that the professor is lecturing with the cat, or that the student has the cat.
+;; Our nondeterministic program finds both possibilities:
+;; ... Asking the evaluator to try again yields ...
+
+; Exercise 4.45 - 49 skipped. Implement Amb Evaluator first.
+
+
+;;; 4.3.3 Implementing the Amb Evaluator
+;; Execution procedures and continuations
+
+;the execution procedures for the ordinary evaluator take one argument: the environment of execution.
+;In contrast, the execution procedures in the amb evaluator take three arguments: the environment, and two procedures called continuation procedures
+
+(define (amb? exp) (tagged-list? exp 'amb))
+(define (amb-choices exp) (cdr exp))
+; analyze-amb
+(define (ambeval exp env succeed fail)
+  ((analyze exp) env succeed fail))
+
+#|
+(ambeval ⟨exp⟩
+         the-global-environment
+         (lambda (value fail) value)
+         (lambda () 'failed))
+|#
+
+;; Simple expressions
+; The execution procedures for the simplest kinds of expressions are essentially the same as those for the ordinary evaluator, except for the need to manage the continuations. 
+; The execution procedures simply succeed with the value of the expression, passing along the failure continuation that was passed to them.
+(define (analyze-self-evaluating exp)
+  (lambda (env succeed fail)
+    (succeed exp fail)))
+
+(define (analyze-quoted exp)
+  (let ((qval (text-of-quotation exp)))
+    (lambda (env succeed fail)
+      (succeed qval fail))))
+
+(define (analyze-variable exp)
+  (lambda (env succeed fail)
+    (succeed (lookup-variable-value exp env)
+             fail)))
+
+(define (analyze-lambda exp)
+  (let ((vars (lambda-parameters exp))
+        (bproc (analyze-sequence 
+                (lambda-body exp))))
+    (lambda (env succeed fail)
+      (succeed (make-procedure vars bproc env)
+               fail))))
+
+;; Conditionals and sequences
+(define (analyze-if exp)
+  (let ((pproc (analyze (if-predicate exp)))
+        (cproc (analyze (if-consequent exp)))
+        (aproc (analyze (if-alternative exp))))
+    (lambda (env succeed fail)
+      (pproc env
+             ;; success continuation for evaluating
+             ;; the predicate to obtain pred-value
+             (lambda (pred-value fail2)
+               (if (true? pred-value)
+                   (cproc env succeed fail2)
+                   (aproc env succeed fail2)))
+             ;; failure continuation for
+             ;; evaluating the predicate
+             fail))))
+
+(define (analyze-sequence exps)
+  (define (sequentially a b)
+    (lambda (env succeed fail)
+      (a env
+         ;; success continuation for calling a
+         (lambda (a-value fail2)
+           (b env succeed fail2))
+         ;; failure continuation for calling a
+         fail)))
+  (define (loop first-proc rest-procs)
+    (if (null? rest-procs)
+        first-proc
+        (loop (sequentially first-proc 
+                            (car rest-procs))
+              (cdr rest-procs))))
+  (let ((procs (map analyze exps)))
+    (if (null? procs)
+        (error "Empty sequence: ANALYZE"))
+    (loop (car procs) (cdr procs))))
+
+;;Definitions and assignments
 

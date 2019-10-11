@@ -41,3 +41,42 @@
 
 (and (supervisor ?person ?supervisor)
      (not (job ?supervisor (computer . ?type))))
+
+;;
+;The general form of a rule is
+;(rule ⟨conclusion⟩ ⟨body⟩)
+;where ⟨conclusion⟩ is a pattern and ⟨body⟩ is any query.
+
+(rule (lives-near ?person-1 ?person-2)
+      (and (address ?person-1 
+                    (?town . ?rest-1))
+           (address ?person-2 
+                    (?town . ?rest-2))
+           (not (same ?person-1 ?person-2))))
+
+(rule (same ?x ?x))
+
+(and (job ?x (computer programmer))
+     (lives-near ?x (Bitdiddle Ben)))
+
+;As in the case of compound procedures, rules can be used as parts of other rules (as we saw with the lives-near rule above) or even be defined recursively.
+
+
+; Exercise 4.57
+(rule (can-replace ?person-1 ?person-2)
+      (and (or (and
+                (job ?person-1 ?job)
+                (job ?person-2 ?job))
+               (and
+                (job ?person-1 ?job-1)
+                (job ?person-2 ?job-2)
+                (can-do-job ?job-2 ?job-1))); can-do-job assumed to be a primitive rule.
+           (not (same ?person-1 ?person-2))))
+
+
+(can-replace (Fect Cy D) ?x)
+
+(and (can-replace ?salary-thief ?under-estimated-poor)
+     (salary ?under-estimated-poor ?poor-salary)
+     (salary ?salary-thief ?high-salary)
+     (lisp-value > ?high-salary ?poor-salary))

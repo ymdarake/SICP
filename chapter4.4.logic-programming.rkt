@@ -73,10 +73,40 @@
                 (can-do-job ?job-2 ?job-1))); can-do-job assumed to be a primitive rule.
            (not (same ?person-1 ?person-2))))
 
-
 (can-replace (Fect Cy D) ?x)
 
 (and (can-replace ?salary-thief ?under-estimated-poor)
      (salary ?under-estimated-poor ?poor-salary)
      (salary ?salary-thief ?high-salary)
      (lisp-value > ?high-salary ?poor-salary))
+
+; Exercise 4.58
+(rule (big-shot ?person)
+      (and (job ?person (?section . ?type))
+           (supervisor ?person ?boss)
+           (job ?boss (?boss-section . ?boss-type))
+           (not (same ?section ?boss-section))))
+
+; Exercise 4.59
+(meeting ?type (Friday ?time))
+
+(rule (meeting-time ?person ?day-and-time)
+      (or (meeting whole-company ?day-and-time)
+          (and
+           (job ?person (?section . ?type))
+           (meeting ?section ?day-and-time))))
+
+(meeting-time (Hacker Alyssa P) (Wednesday ?time))
+
+; Exercise 4.60
+; This happens because both of two cases satisfy the condition. Orders of names is not the point to the rule.
+; We can remove duplicates by sorting names alphabetically.
+(and (lives-near ?person-1 ?person-2)
+     (lisp-value person< ?person-1 ?person-2))
+(define (person->string a1)
+  (if (null? a1)
+      ""
+      (string-append (symbol->string (car a1)) (person->string (cdr a1)))))
+(define (person< person-1 person-2)
+  (string<? (person->string person-1) (person->string person-2)))
+

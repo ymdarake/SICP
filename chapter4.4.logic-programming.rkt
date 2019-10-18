@@ -110,3 +110,15 @@
 (define (person< person-1 person-2)
   (string<? (person->string person-1) (person->string person-2)))
 
+; Exercise 4.63
+(rule (grandson-of ?g ?s)
+      (and (son-of ?f ?s)
+           (son-of ?g ?f)))
+
+(rule (son-of ?m ?s)
+      (or (son ?m ?s)
+          (and (wife ?m ?w)
+               (son ?w ?s))))
+
+
+

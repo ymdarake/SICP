@@ -98,6 +98,31 @@
 
 (meeting-time (Hacker Alyssa P) (Wednesday ?time))
 
+
+
+(rule (append-to-form () ?y ?y))
+(rule (append-to-form (?u . ?v) ?y (?u . ?z))
+      (append-to-form ?v ?y ?z))
+
+;; input
+(append-to-form (a b) (c d) ?z)
+;; result
+(append-to-form (a b) (c d) (a b c d))
+
+;; input
+(append-to-form (a b) ?y (a b c d))
+;; result
+(append-to-form (a b) (c d) (a b c d))
+
+;; input
+(append-to-form ?x ?y (a b c d))
+;; result
+(append-to-form () (a b c d) (a b c d))
+(append-to-form (a) (b c d) (a b c d))
+(append-to-form (a b) (c d) (a b c d))
+(append-to-form (a b c) (d) (a b c d))
+(append-to-form (a b c d) () (a b c d))
+
 ; Exercise 4.60
 ; This happens because both of two cases satisfy the condition. Orders of names is not the point to the rule.
 ; We can remove duplicates by sorting names alphabetically.
@@ -119,6 +144,7 @@
       (or (son ?m ?s)
           (and (wife ?m ?w)
                (son ?w ?s))))
+
 
 
 

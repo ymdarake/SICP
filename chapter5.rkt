@@ -53,3 +53,29 @@ after-gcd-1
  (goto (label gcd))
 after-gcd-2
 
+
+;; A recursive factorial machine.
+(controller
+ (assign continue (label fact-done))   ; set up final return address
+ fact-loop
+ (test (op =) (reg n) (const 1))
+ (branch (label base-case))
+ (save continue)                       ; Set up for the recursive call
+ (save n)                              ; by saving n and continue.
+ (assign n (op -) (reg n) (const 1))   ; Set up continue so that the
+ (assign continue (label after-fact))  ; computation will continue
+ (goto (label fact-loop))              ; at after-fact when the
+ after-fact                            ; subroutine returns.
+ (restore n)
+ (restore continue)
+ (assign val (op *) (reg n) (reg val)) ; val now contains n(n - 1)!
+ (goto (reg continue))                 ; return to caller
+ base-case
+ (assign val (const 1))                ; base case: 1! = 1
+ (goto (reg continue))                 ; return to caller
+ fact-done)
+
+
+; Exercise 5.6
+; afterfib-n-1 > (restore continue) (save continue)
+ 

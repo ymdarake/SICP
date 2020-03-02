@@ -136,3 +136,85 @@
 (define (get-register machine reg-name)
   ((machine 'get-register) reg-name))
 
+
+;;; 5.2.2 - The Assembler
+
+;; The assembler transforms the sequence of controller expressions for a machine
+; into a corresponding list of machine instructions, each with its execution procedure.
+; - Overall, the assembler is much like the evaluators we studied in Chapter 4:
+; - there is an input language (in this case, the register-machine language) and
+; - we must perform an appropriate action for each type of expression in the language.
+
+; As it scans the text, it constructs both a list of instructions and a table that associates each label with a pointer into that list.
+; Then the assembler augments the instruction list by inserting the execution procedure for each instruction.
+; - Assemble calls extract-labels to build the initial instruction list and label table from the supplied controller text.
+; - The second argument to extract-labels is a procedure to be called to process these results.
+(define (assemble controller-text machine)
+  (extract-labels controller-text
+                  (lambda (insts labels)
+                    (update-insts! insts labels machine)
+                    insts)))
+
+; Extract-labels takes as arguments a list text (the sequence of controller instruction expressions) and a receive procedure.
+; Receive(↑lamda written up there) will be called with two values:
+; - (1) a list insts of instruction data structures, each containing an instruction from text.
+; - (2) a table called labels, which associates each label from text with the position in the list insts that the label designates.
+(define (extract-labels text receive)
+  (if (null? text)
+      (receive '() '())
+      (extract-labels
+       (cdr text)
+       (lambda (insts labels)
+         (let ((next-inst (car text)))
+           (if (symbol? next-inst)
+               (receive insts (cons (make-label-entry next-inst insts) labels))
+               (receive (cons (make-instruction next-inst) insts) labels)))))))
+
+; update-insts! modifies the instruction list,
+; - which initially contains only the text of the instructions,
+; - to include the corresponding execution procedures:
+(define (update-insts! insts labels machine)
+  (let ((pc (get-register machine 'pc))
+        (flag (get-register machine 'flag))
+        (stack (machine 'stack))
+        (ops (machine 'operations)))
+    (for-each
+     (lambda (inst)
+       (set-instruction-execution-proc!
+        inst
+        (make-execution-procedure
+         (instruction-text inst)
+         labels
+         machine
+         pc
+         flag
+         stack
+         ops)))
+     insts)))
+
+; The machine instruction data structure simply pairs the instruction text with the corresponding execution procedure.
+(define (make-instruction text) (cons text '()))
+(define (instruction-text inst) (car inst))
+(define (instruction-execution-proc inst) (cdr inst))
+(define (set-instruction-execution-proc! inst proc) (set-cdr! inst proc))
+
+; Elements of the label table are pairs:
+(define (make-label-entry label-name insts)
+  (cons label-name insts))
+; Entries will be looked up in the table with
+(define (lookup-label labels label-name)
+  (let ((val (assoc label-name labels)))
+    (if val
+        (cdr val)
+        (error "Undefined label: ASSEMBLE" label-name))))
+
+; Exercise 5.8
+;start
+;  (goto (label here))
+;here
+;  (assign a (const 3))
+;  (goto (label there))
+;here
+;  (assign a (const 4))
+;  (goto (label there))
+;there

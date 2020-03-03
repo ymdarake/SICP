@@ -103,7 +103,7 @@
               ((eq? message 'install-instruction-sequence) (lambda (seq) (set! the-instruction-sequence seq)))
               ((eq? message 'allocate-register) allocate-register)
               ((eq? message 'get-register) lookup-register)
-              ((eq? message 'install-operations) (lambda (ops) (set! the-opes (append the-ops ops))))
+              ((eq? message 'install-operations) (lambda (ops) (set! the-ops (append the-ops ops))))
               ((eq? message 'stack) stack)
               ((eq? message 'operations) the-ops)
               (else (error "Unknown request: MACHINE " message))))
@@ -218,3 +218,215 @@
 ;  (assign a (const 4))
 ;  (goto (label there))
 ;there
+
+
+;;; 5.2.3 - Generating Execution Procedures for Instructions
+;; The assembler calls make-execution-procedure to generate the execution procedure for an instruction.
+
+(define (make-execution-procedure
+         inst labels machine pc flag stack ops)
+  (cond ((eq? (car inst) 'assign) (make-assign inst machine labels ops pc))
+        ((eq? (car inst) 'test) (make-test inst machine labels flag pc))
+        ((eq? (car inst) 'branch) (make-branch inst machine labels flag pc))
+        ((eq? (car inst) 'goto) (make-goto inst machine labels flag pc))
+        ((eq? (car inst) 'save) (make-save inst machine labels flag pc))
+        ((eq? (car inst) 'restore) (make-restore inst machine labels flag pc))
+        ((eq? (car inst) 'perform) (make-perform inst machine labels flag pc))
+        (else (error "Unknown instruction type: ASSEMBLE" inst))))
+; For each type of instruction in the register-machine language,
+; - there is a generator that builds an appropriate execution procedure.
+; The details of these procedures determine both the syntax and meaning of the individual instructions in the register-machine language.
+;  - We use data abstraction to isolate the detailed syntax of register-machine expressions from the general execution mechanism,
+;  - as we did for evaluators in 4.1.2
+(define (make-assign inst machine labels operations pc)
+  (let ((target (get-register machine (assign-reg-name inst)))
+        (value-exp (assign-value-exp inst)))
+    (let ((value-proc
+           (if (operation-exp? value-exp)
+               (make-operation-exp value-exp machin labels operations)
+               (make-primitive-exp (car value-exp) machine labels))))
+      ; execution procedure for assign
+      (lambda ()
+        (set-contents! target (value-proc))
+        (advance-pc pc)))))
+
+(define (assign-reg-name assign-instruction)
+  (cadr assign-instruction))
+(define (assign-value-exp assign-instruction)
+  (cddr assign-instruction))
+
+; Notice that the work of looking up the register name and parsing the value expression
+; is performed just once, at assembly time, not every time the instruction is simulated.
+; This saving of work
+; - is the reason we use execution procedures, and
+; - corresponds directly to the saving in work we obtained by separating program analysis from execution in the evaluator of 4.1.7.
+
+; The result returned by make-assign is the execution procedure for the assign instruction.
+; When this procedure is called (by the machine model’s execute procedure),
+; it sets the contents of the target register to the result obtained by executing value-proc.
+; Then it advances the pc to the next instruction by running the procedure:
+(define (advance-pc pc)
+  (set-contents! pc (cdr (get-contents pc))))
+
+; At simulation time, the procedure for the condition is called,
+; the result is assigned to the flag register, and the pc is advanced:
+(define (make-test inst machine labels operations flag pc)
+  (let ((condition (test-condition inst)))
+    (if (operation-exp? condition)
+        (let ((condition-proc (make-operation-exp
+                               condition
+                               machine
+                               labels
+                               operations)))
+          (lambda ()
+            (set-contents! flag (condition-proc))
+            (advance-pc pc)))
+        (error "Bad TEST instruction: ASSEMBLE" inst))))
+
+(define (test-condition test-instruction)
+  (cdr test-instruction))
+
+; The execution procedure for a branch instruction checks the contents of the flag register and
+; either sets the contents of the pc to the branch destination (if the branch is taken)
+; or else just advances the pc (if the branch is not taken). 
+(define (make-branch inst machine labels flag pc)
+  (let ((dest (branch-dest inst)))
+    (if (label-exp? dest)
+        (let ((insts (lookup-label
+                      labels
+                      (label-exp-label dest))))
+          (lambda ()
+            (if (get-contents flag)
+                (set-contents! pc insts)
+                (advance-pc pc))))
+        (error "Bad BRANCH instruction: ASSEMBLE" inst))))
+
+(define (branch-dest branch-instruction)
+  (cadr branch-instruction))
+
+; A goto instruction is similar to a branch,
+; except that the destination may be specified either as a label or as a register, and
+; there is no condition to check—the pc is always set to the new destination.
+(define (make-goto inst machine labels pc)
+  (let ((dest (goto-dest inst)))
+    (cond ((label-exp? dest)
+           (let ((insts (lookup-label
+                         labels
+                         (label-exp-label dest))))
+             (lambda ()
+               (set-contents! pc insts))))
+          ((register-exp? dest)
+           (let ((reg (get-register
+                       machine
+                       (register-exp-reg dest))))
+             (lambda ()
+               (set-contents! pc (get-contents reg)))))
+          (else (error "Bad GOTO instruction: ASSEMBLE " inst)))))
+
+(define (goto-dest goto-instruction)
+  (cadr goto-instruction))
+
+
+; The stack instructions save and restore simply use the stack
+; with the designated register and advance the pc:
+(define (make-save inst machine stack pc)
+  (let ((reg (get-register
+              machine
+              (stack-inst-reg-name inst))))
+    (lambda ()
+      (push stack (get-contents reg))
+      (advance-pc pc))))
+
+(define (make-restore inst machine stack pc)
+  (let ((reg (get-register
+              machine
+              (stack-inst-reg-name inst))))
+    (lambda ()
+      (set-contents! reg (pop stack))
+      (advance-pc pc))))
+
+(define (stack-inst-reg-name stack-instruction)
+  (cadr stack-instruction))
+
+; The final instruction type, handled by make-perform, generates an execution procedure for the action to be performed.
+; At simulation time, the action procedure is executed and the pc advanced.
+(define (make-perform inst machine labels operations pc)
+  (let ((action (perform-action inst)))
+    (if (operation-exp? action)
+        (let ((action-proc
+               (make-operation-exp action machine labels operations)))
+          (lambda ()
+            (action-proc)
+            (advance-pc pc)))
+        (error "Bad PERFORM instruction: ASSEMBLE " inst))))
+
+(define (perform-action inst) (cdr inst))
+
+; The value of a reg, label, or const expression may be needed
+; for assignment to a register (make-assign) or for input to an operation (make-operation-exp, below). 
+(define (make-primitive-exp exp machine labels)
+  (cond ((constant-exp? exp)
+         (let ((c (constant-exp-value exp)))
+           (lambda () c)))
+        ((label-exp? exp)
+         (let ((insts
+                (lookup-label
+                 labels
+                 (label-exp-label exp))))
+           (lambda () insts)))
+        ((register-exp? exp)
+         (let ((r (get-register
+                   machine
+                   (register-exp-reg exp))))
+           (lambda () (get-contents r))))
+        (else (error "Unknow expression type: ASSEMBLE " exp))))
+
+(define (register-exp? exp)
+  (tagged-list? exp 'reg))
+(define (register-exp-reg exp)
+  (cadr exp))
+(define (constant-exp? exp)
+  (tagged-list? exp 'const))
+(define (constant-exp-value exp)
+  (cadr exp))
+(define (label-exp? exp)
+  (tagged-list? exp 'label))
+(define (label-exp-label exp) 
+  (cadr exp))
+
+; Assign, perform, and test instructions may include the application of a machine operation (specified by an op expression) to some operands (specified by reg and const expressions).
+; The following procedure produces an execution procedure for an “operation expression”—a list containing the operation and operand expressions from the instruction:
+(define (make-operation-exp
+         exp machine labels operations)
+  (let ((op (lookup-prim (operation-exp-op exp) operations))
+        (aprocs (map (lambda (e) (make-primitive-exp e machine labels))
+                     (operation-exp-operands exp))))
+    (lambda () (apply
+                op
+                (map (lambda (p) (p)) aprocs)))))
+
+(define (operation-exp? exp)
+  (and (pair? exp)
+       (tagged-list? (car exp) 'op)))
+(define (operation-exp-op operation-exp)
+  (cadr (car operation-exp)))
+(define (operation-exp-operands operation-exp)
+  (cdr operation-exp))
+; At simulation time, we call the operand procedures and apply the Scheme procedure that simulates the operation to the resulting values. 
+; The simulation procedure is found by looking up the operation name in the operation table for the machine:
+(define (lookup-prim symbol operations)
+  (let ((val (assoc symbol operations)))
+    (if val
+        (cadr val)
+        (error "Unknown operation: ASSEMBLE"
+               symbol))))
+
+
+
+
+
+
+
+
+
+

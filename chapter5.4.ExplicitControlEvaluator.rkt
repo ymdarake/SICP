@@ -323,9 +323,46 @@ ev-definition-1
   (goto (reg continue))
 
 
+;; 5.4.4 - Running the Evaluator
+; With the implementation of the explicit-control evaluator we come to the end of a development,
+; - begun in Chapter 1, in which we have explored successively more precise models of the evaluation process.
+; - We started with the relatively informal substitution model,
+; - then extended this in Chapter 3 to the environment model, which enabled us to deal with state and change.
+; - In the metacircular evaluator of Chapter 4, we used Scheme itself as a language for making more explicit the environment structure constructed during evaluation of an expression.
+; - Now, with register machines, we have taken a close look at the evaluator’s mechanisms for storage management, argument passing, and control.
+
+read-eval-print-loop
+  (perform (op initialize-stack))
+  (perform (op prompt-for-input)
+           (const ";;; EC-Eval input:"))
+  (assign exp (op read))
+  (assign env (op get-global-environment))
+  (assign continue (label print-result))
+  (goto (label eval-dispatch))
+
+print-result
+  (perform (op announce-output)
+           (const ";;; EC-Eval value:"))
+  (perform (op user-print) (reg val))
+  (goto (label read-eval-print-loop))
 
 
+(define eceval
+  (make-machine
+   '(exp env val proc argl continue unev)
+   eceval-operations
+   '(read-eval-print-loop
+     ⟨entire machine controller 
+      as given above⟩)))
 
+(define eceval-operations
+  (list (list 'self-evaluating? 
+              self-evaluating)
+        ⟨complete list of operations 
+         for eceval machine⟩))
 
+(define the-global-environment
+  (setup-environment))
 
+(start eceval)
 
